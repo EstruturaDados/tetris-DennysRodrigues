@@ -109,3 +109,86 @@ int pop(Peca pilha[], int *topo, Peca *removida) {
     return 1;
 }
 
+//----------------------------------------------
+// PROGRAMA PRINCIPAL
+//----------------------------------------------
+int main() {
+    srand(time(NULL));
+
+    // FILA CIRCULAR
+    Peca fila[TAM_FILA];
+    int inicio = 0, fim = 0, qtdFila = 0;
+
+    // PILHA
+    Peca pilha[TAM_PILHA];
+    int topo = -1;
+
+    // Inicializar a fila com 5 peças
+    for (int i = 0; i < TAM_FILA; i++) {
+        enfileirar(fila, &fim, &qtdFila, gerarPeca());
+    }
+
+    int opcao;
+
+    do {
+        exibirEstado(fila, inicio, fim, qtdFila, pilha, topo);
+
+        printf("\nOpções de Ação:\n");
+        printf("1 - Jogar peça (dequeue)\n");
+        printf("2 - Reservar peça (fila -> pilha)\n");
+        printf("3 - Usar peça reservada (pop)\n");
+        printf("0 - Sair\n");
+        printf("Opção: ");
+        scanf("%d", &opcao);
+
+        printf("\n");
+
+        switch(opcao) {
+            case 1: {
+                // JOGAR PEÇA
+                Peca jogada = desenfileirar(fila, &inicio, &qtdFila);
+                printf("Peça jogada: [%c %d]\n", jogada.nome, jogada.id);
+
+                // Repor a fila imediatamente
+                enfileirar(fila, &fim, &qtdFila, gerarPeca());
+                break;
+            }
+
+            case 2: {
+                // RESERVAR PEÇA
+                if (topo == TAM_PILHA - 1) {
+                    printf("Pilha de reserva está cheia! Não é possível reservar.\n");
+                } else {
+                    Peca reservada = desenfileirar(fila, &inicio, &qtdFila);
+                    push(pilha, &topo, reservada);
+                    printf("Peça reservada: [%c %d]\n", reservada.nome, reservada.id);
+
+                    // Repor a fila
+                    enfileirar(fila, &fim, &qtdFila, gerarPeca());
+                }
+                break;
+            }
+
+            case 3: {
+                // USAR PEÇA DA RESERVA
+                Peca usada;
+                if (pop(pilha, &topo, &usada)) {
+                    printf("Peça usada da reserva: [%c %d]\n", usada.nome, usada.id);
+                } else {
+                    printf("Pilha de reserva vazia! Nada a usar.\n");
+                }
+                break;
+            }
+
+            case 0:
+                printf("Encerrando jogo...\n");
+                break;
+
+            default:
+                printf("Opção inválida!\n");
+        }
+
+    } while(opcao != 0);
+
+    return 0;
+}
